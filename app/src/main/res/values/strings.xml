@@ -9,9 +9,14 @@
     <string name="action_yes">Yes</string>
     <string name="action_cancel">Cancel</string>
 
+    <string name="dialog_title_close_game">Close game</string>
+    <string name="msg_close_game">Are you sure you want to close the game?</string>
+
 
     <!-- Buttons title -->
     <string name="btn_start">Start</string>
     <string name="btn_winners">Winners</string>
     <string name="btn_exit">Exit</string>
+    <string name="btn_score_team">Score %s</string>
+    <string name="btn_close_game">Close game</string>
 </resources>

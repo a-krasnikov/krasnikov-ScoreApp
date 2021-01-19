@@ -1,16 +1,21 @@
 package krasnikov.project.scoreapp
 
 import android.os.Bundle
+import android.os.Handler
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
+import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.commit
-import androidx.fragment.app.replace
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import krasnikov.project.scoreapp.databinding.FragmentGameBinding
 import krasnikov.project.scoreapp.databinding.FragmentStartBinding
 
-class StartFragment : Fragment(R.layout.fragment_start) {
+class GameFragment : Fragment(R.layout.fragment_game) {
 
-    private val binding by lazy { FragmentStartBinding.bind(requireView()) }
+    private val binding by lazy { FragmentGameBinding.bind(requireView()) }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -19,27 +24,19 @@ class StartFragment : Fragment(R.layout.fragment_start) {
     }
 
     private fun setupButtonListeners() {
+        binding.btnScoreTeam1.setOnClickListener { }
 
-        binding.btnStart.setOnClickListener {
-            parentFragmentManager.commit {
-                setReorderingAllowed(true)
-                replace<GameFragment>(R.id.fragment_container)
-                addToBackStack("GameFragment")
-            }
-        }
+        binding.btnScoreTeam2.setOnClickListener { }
 
-        binding.btnWinners.setOnClickListener { }
-
-        binding.btnExit.setOnClickListener {
+        binding.btnCloseGame.setOnClickListener {
             MaterialAlertDialogBuilder(requireContext())
-                .setTitle(getString(R.string.dialog_title_exit))
-                .setMessage(getString(R.string.msg_exit))
+                .setTitle(getString(R.string.dialog_title_close_game))
+                .setMessage(getString(R.string.msg_close_game))
                 .setNegativeButton(resources.getString(R.string.action_cancel)) { dialog, which ->
                     dialog.cancel()
                 }
                 .setPositiveButton(resources.getString(R.string.action_yes)) { dialog, which ->
                     dialog.dismiss()
-                    requireActivity().finish()
                 }
                 .show()
         }
@@ -47,6 +44,6 @@ class StartFragment : Fragment(R.layout.fragment_start) {
 
     companion object {
         @JvmStatic
-        fun newInstance() = StartFragment()
+        fun newInstance() = GameFragment()
     }
 }
