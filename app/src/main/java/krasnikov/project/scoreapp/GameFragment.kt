@@ -15,7 +15,16 @@ import krasnikov.project.scoreapp.databinding.FragmentStartBinding
 
 class GameFragment : Fragment(R.layout.fragment_game) {
 
-    private val binding by lazy { FragmentGameBinding.bind(requireView()) }
+    private lateinit var binding: FragmentGameBinding
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = FragmentGameBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
