@@ -1,21 +1,30 @@
-package krasnikov.project.scoreapp
+package krasnikov.project.scoreapp.ui
 
 import android.os.Bundle
-import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
-import android.widget.Button
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import krasnikov.project.scoreapp.R
 import krasnikov.project.scoreapp.databinding.FragmentGameBinding
-import krasnikov.project.scoreapp.databinding.FragmentStartBinding
 
 class GameFragment : Fragment(R.layout.fragment_game) {
 
     private lateinit var binding: FragmentGameBinding
+
+    private lateinit var team1: String
+    private lateinit var team2: String
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        arguments?.let {
+            //TODO default
+            team1 = it.getString(ARG_TEAM1, "")
+            team2 = it.getString(ARG_TEAM2, "")
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -29,7 +38,20 @@ class GameFragment : Fragment(R.layout.fragment_game) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupTeamName()
         setupButtonListeners()
+    }
+
+    private fun setupTeamName() {
+        with(binding.scoreboard) {
+            tvNameTeam1.text = team1
+            tvNameTeam2.text = team2
+        }
+
+        with(binding) {
+            btnScoreTeam1.text = getString(R.string.btn_score_team, team1)
+            btnScoreTeam2.text = getString(R.string.btn_score_team, team2)
+        }
     }
 
     private fun setupButtonListeners() {
@@ -52,7 +74,16 @@ class GameFragment : Fragment(R.layout.fragment_game) {
     }
 
     companion object {
+        private const val ARG_TEAM1 = "team1"
+        private const val ARG_TEAM2 = "team2"
+
         @JvmStatic
-        fun newInstance() = GameFragment()
+        fun newInstance(team1: String, team2: String) =
+            GameFragment().apply {
+                arguments = Bundle().apply {
+                    putString(ARG_TEAM1, team1)
+                    putString(ARG_TEAM2, team2)
+                }
+            }
     }
 }

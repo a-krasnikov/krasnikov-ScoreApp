@@ -14,6 +14,8 @@
     <string name="dialog_title_close_game">Close game</string>
     <string name="msg_close_game">Are you sure you want to close the game?</string>
 
+    <!-- Error msg-->
+    <string name="error_input_team_name">The name must be at least 3 characters long.</string>
 
     <!-- Buttons title -->
     <string name="btn_start">Start</string>
