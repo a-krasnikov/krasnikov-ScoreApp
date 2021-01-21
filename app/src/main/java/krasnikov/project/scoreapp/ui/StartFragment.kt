@@ -51,7 +51,7 @@ class StartFragment : Fragment(R.layout.fragment_start) {
             parentFragmentManager.commit {
                 val fragment = GameFragment.newInstance(
                     binding.etTeam1.text.toString(),
-                    binding.etTeam1.text.toString()
+                    binding.etTeam2.text.toString()
                 )
                 replace(R.id.fragment_container, fragment)
                 addToBackStack("GameFragment")
@@ -72,14 +72,18 @@ class StartFragment : Fragment(R.layout.fragment_start) {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(getString(R.string.dialog_title_exit))
             .setMessage(getString(R.string.msg_exit))
-            .setNegativeButton(resources.getString(R.string.action_cancel)) { dialog, which ->
-                dialog.cancel()
-            }
-            .setPositiveButton(resources.getString(R.string.action_yes)) { dialog, which ->
+            .setNegativeButton(resources.getString(R.string.action_cancel)) { dialog, _ ->
                 dialog.dismiss()
-                requireActivity().finish()
+            }
+            .setPositiveButton(resources.getString(R.string.action_yes)) { dialog, _ ->
+                dialog.dismiss()
+                exitApp()
             }
             .show()
+    }
+
+    private fun exitApp() {
+        requireActivity().finish()
     }
 
     private fun setupTextInputValidation() {
