@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ui.WinnerListFragment">
+    tools:context=".ui.teams.TeamListFragment">
 
     <com.google.android.material.textview.MaterialTextView
         android:layout_width="match_parent"
@@ -14,8 +15,10 @@
         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline3" />
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvGames"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:listitem="@layout/recycler_item_winner" />
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/recycler_item_game" />
 
 </LinearLayout>

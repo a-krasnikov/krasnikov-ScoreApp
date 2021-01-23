@@ -4,7 +4,8 @@
     <string name="title_team1">Team 1</string>
     <string name="title_team2">Team 2</string>
     <string name="title_winner_list">List of winners</string>
-
+    <string name="title_notification_game">Game is running</string>
+    <string name="text_draw">Draw</string>
 
     <!-- Dialogs-->
     <string name="dialog_title_exit">Exit</string>
@@ -20,10 +21,17 @@
     <string name="btn_exit">Exit</string>
     <string name="btn_score_team">Score %s</string>
     <string name="btn_close_game">Close game</string>
+    <string name="btn_notification_play">Play game</string>
+    <string name="btn_ok">Ok</string>
+    <string name="btn_cancel">Cancel</string>
 
     <!-- Error msg-->
     <string name="error_input_team_name">The name must be at least 3 characters long.</string>
 
     <string name="msg_game_not_running">Game is not running. Please start timer.</string>
+
+
+    <!-- Strings for notification channel. -->
+    <string name="timer_channel">Timer</string>
 
 </resources>

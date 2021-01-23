@@ -1,16 +1,15 @@
-package krasnikov.project.scoreapp.ui
+package krasnikov.project.scoreapp.ui.start
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.commit
-import androidx.fragment.app.replace
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import krasnikov.project.scoreapp.R
 import krasnikov.project.scoreapp.databinding.FragmentStartBinding
+import krasnikov.project.scoreapp.utils.Navigation
 
 class StartFragment : Fragment(R.layout.fragment_start) {
 
@@ -34,37 +33,21 @@ class StartFragment : Fragment(R.layout.fragment_start) {
 
     private fun setupButtonListeners() {
         binding.btnStart.setOnClickListener {
-            navigateToGameFragment()
+            if (isValidInputName(binding.etTeam1) && isValidInputName(binding.etTeam2)) {
+                Navigation.navigateToGameFragment(
+                    parentFragmentManager,
+                    binding.etTeam1.text.toString(),
+                    binding.etTeam2.text.toString()
+                )
+            }
         }
 
         binding.btnWinners.setOnClickListener {
-            navigateToWinnerListFragment()
+            Navigation.navigateToTeamListFragment(parentFragmentManager)
         }
 
         binding.btnExit.setOnClickListener {
             showExitConfirmationDialog()
-        }
-    }
-
-    private fun navigateToGameFragment() {
-        if (isValidInputName(binding.etTeam1) && isValidInputName(binding.etTeam2)) {
-            parentFragmentManager.commit {
-                val fragment = GameFragment.newInstance(
-                    binding.etTeam1.text.toString(),
-                    binding.etTeam2.text.toString()
-                )
-                replace(R.id.fragment_container, fragment)
-                addToBackStack("GameFragment")
-                setReorderingAllowed(true)
-            }
-        }
-    }
-
-    private fun navigateToWinnerListFragment() {
-        parentFragmentManager.commit {
-            setReorderingAllowed(true)
-            replace<WinnerListFragment>(R.id.fragment_container)
-            addToBackStack("WinnerListFragment")
         }
     }
 
@@ -77,24 +60,20 @@ class StartFragment : Fragment(R.layout.fragment_start) {
             }
             .setPositiveButton(resources.getString(R.string.action_yes)) { dialog, _ ->
                 dialog.dismiss()
-                exitApp()
+                Navigation.exitApp(requireActivity())
             }
             .show()
     }
 
-    private fun exitApp() {
-        requireActivity().finish()
-    }
-
     private fun setupTextInputValidation() {
-        val etFocusListener = View.OnFocusChangeListener { view, hasFocus ->
+        val etLoseFocusListener = View.OnFocusChangeListener { view, hasFocus ->
             if (!hasFocus) {
                 isValidInputName(view as TextInputEditText)
             }
         }
 
-        binding.etTeam1.onFocusChangeListener = etFocusListener
-        binding.etTeam2.onFocusChangeListener = etFocusListener
+        binding.etTeam1.onFocusChangeListener = etLoseFocusListener
+        binding.etTeam2.onFocusChangeListener = etLoseFocusListener
     }
 
     private fun isValidInputName(inputText: TextInputEditText): Boolean {
