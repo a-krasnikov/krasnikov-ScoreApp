@@ -11,9 +11,8 @@
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tvTimer"
+            style="@style/Widget.App.TextView.Scoreboard.Timer"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -21,44 +20,68 @@
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tvNameTeam1"
+            style="@style/Widget.App.TextView.Scoreboard.TeamName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
             app:layout_constraintEnd_toStartOf="@+id/tvNameTeam2"
             app:layout_constraintHorizontal_chainStyle="spread"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvTimer"
             tools:text="Team1" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tvScoreTeam1"
+        <TextSwitcher
+            android:id="@+id/tsScoreTeam1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="00"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
+            android:inAnimation="@anim/slide_in_top"
+            android:outAnimation="@anim/slide_out_bottom"
             app:layout_constraintEnd_toEndOf="@+id/tvNameTeam1"
             app:layout_constraintStart_toStartOf="@+id/tvNameTeam1"
-            app:layout_constraintTop_toBottomOf="@+id/tvNameTeam1" />
+            app:layout_constraintTop_toBottomOf="@+id/tvNameTeam1">
+
+            <com.google.android.material.textview.MaterialTextView
+                style="@style/Widget.App.TextView.Scoreboard.Score"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/score_height"
+                tools:text="0" />
+
+            <com.google.android.material.textview.MaterialTextView
+                style="@style/Widget.App.TextView.Scoreboard.Score"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/score_height" />
+        </TextSwitcher>
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tvNameTeam2"
+            style="@style/Widget.App.TextView.Scoreboard.TeamName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/tvNameTeam1"
             app:layout_constraintTop_toBottomOf="@+id/tvTimer"
             tools:text="Team2" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tvScoreTeam2"
+        <TextSwitcher
+            android:id="@+id/tsScoreTeam2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="00"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
+            android:inAnimation="@anim/slide_in_top"
+            android:outAnimation="@anim/slide_out_bottom"
             app:layout_constraintEnd_toEndOf="@+id/tvNameTeam2"
             app:layout_constraintStart_toStartOf="@+id/tvNameTeam2"
-            app:layout_constraintTop_toBottomOf="@+id/tvNameTeam2" />
+            app:layout_constraintTop_toBottomOf="@+id/tvNameTeam2">
+
+            <com.google.android.material.textview.MaterialTextView
+                style="@style/Widget.App.TextView.Scoreboard.Score"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/score_height"
+                tools:text="0" />
+
+            <com.google.android.material.textview.MaterialTextView
+                style="@style/Widget.App.TextView.Scoreboard.Score"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/score_height" />
+        </TextSwitcher>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

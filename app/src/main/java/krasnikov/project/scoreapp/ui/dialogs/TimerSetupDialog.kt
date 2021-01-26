@@ -1,48 +1,47 @@
 package krasnikov.project.scoreapp.ui.dialogs
 
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.IdRes
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import krasnikov.project.scoreapp.R
 import krasnikov.project.scoreapp.databinding.DialogTimerSetupBinding
-import krasnikov.project.scoreapp.utils.TimerStringFormatter.HOUR_IN_SECONDS
-import krasnikov.project.scoreapp.utils.TimerStringFormatter.MINUTE_IN_SECONDS
+import krasnikov.project.scoreapp.utils.TimerStringFormatter.TIME_TEMPLATE
 
 class TimerSetupDialog : BottomSheetDialogFragment(), View.OnClickListener,
     View.OnLongClickListener {
 
     private lateinit var binding: DialogTimerSetupBinding
 
-    private val mInput = intArrayOf(0, 0, 0, 0, 0, 0)
+    private val input = intArrayOf(0, 0, 0, 0, 0, 0)
+    private var inputPointer = -1
 
-    private var mInputPointer = -1
-    private val mTimeTemplate = "%02d:%02d:%02d"
+    private lateinit var timeView: TextView
+    private lateinit var deleteButton: View
+    private lateinit var okButton: View
+    private lateinit var digitViews: Array<TextView>
 
-    private lateinit var mTimeView: TextView
-    private lateinit var mDeleteView: View
-    private lateinit var mOkView: View
-    private lateinit var mDigitViews: Array<TextView>
-
-    private val timeInSeconds: Int
+    val timeInMillis: Long
         get() {
-            val seconds = mInput[1] * 10 + mInput[0]
-            val minutes = mInput[3] * 10 + mInput[2]
-            val hours = mInput[5] * 10 + mInput[4]
-            return seconds +
-                    minutes * MINUTE_IN_SECONDS +
-                    hours * HOUR_IN_SECONDS
+            val seconds = input[1] * 10 + input[0]
+            val minutes = input[3] * 10 + input[2]
+            val hours = input[5] * 10 + input[4]
+            return seconds * DateUtils.SECOND_IN_MILLIS +
+                    minutes * DateUtils.MINUTE_IN_MILLIS +
+                    hours * DateUtils.HOUR_IN_MILLIS
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         savedInstanceState?.let {
-            it.getIntArray(BUNDLE_INPUT)?.copyInto(mInput)
-            mInputPointer = it.getInt(BUNDLE_INPUT_POINTER)
+            it.getIntArray(BUNDLE_INPUT)?.copyInto(input)
+            inputPointer = it.getInt(BUNDLE_INPUT_POINTER)
         }
     }
 
@@ -56,11 +55,53 @@ class TimerSetupDialog : BottomSheetDialogFragment(), View.OnClickListener,
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initView()
+        setupListeners()
+        updateTime()
+        updateDelete()
+    }
 
-        mTimeView = binding.tvSetupTime
-        mDeleteView = binding.btnDelete
-        mOkView = binding.btnOK
-        mDigitViews = arrayOf(
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putIntArray(BUNDLE_INPUT, input)
+        outState.putInt(BUNDLE_INPUT_POINTER, inputPointer)
+    }
+
+    override fun onClick(view: View) {
+        when (view) {
+            deleteButton -> {
+                delete()
+            }
+            okButton -> {
+                if (hasValidInput()) {
+                    sendResult()
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.msg_invalid_time),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+            else -> {
+                append(getDigitForId(view.id))
+            }
+        }
+    }
+
+    override fun onLongClick(view: View): Boolean {
+        if (view === deleteButton) {
+            reset()
+            return true
+        }
+        return false
+    }
+
+    private fun initView() {
+        timeView = binding.tvSetupTime
+        deleteButton = binding.btnDelete
+        okButton = binding.btnOK
+        digitViews = arrayOf(
             binding.btn0,
             binding.btn2,
             binding.btn3,
@@ -72,49 +113,13 @@ class TimerSetupDialog : BottomSheetDialogFragment(), View.OnClickListener,
             binding.btn8,
             binding.btn9
         )
-
-        setupListeners()
-        updateTime()
-        updateDelete()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putIntArray(BUNDLE_INPUT, mInput)
-        outState.putInt(BUNDLE_INPUT_POINTER, mInputPointer)
-    }
-
-    override fun onClick(view: View) {
-
-        when (view) {
-            mDeleteView -> {
-                delete()
-            }
-            mOkView -> {
-                if (hasValidInput()) {
-                    sendResult()
-                }
-                //TODO show toast enter valid input
-            }
-            else -> {
-                append(getDigitForId(view.id))
-            }
-        }
-    }
-
-    override fun onLongClick(view: View): Boolean {
-        if (view === mDeleteView) {
-            reset()
-            return true
-        }
-        return false
     }
 
     private fun setupListeners() {
-        mDeleteView.setOnClickListener(this)
-        mDeleteView.setOnLongClickListener(this)
-        mOkView.setOnClickListener(this)
-        mDigitViews.forEach { it.setOnClickListener(this) }
+        deleteButton.setOnClickListener(this)
+        deleteButton.setOnLongClickListener(this)
+        okButton.setOnClickListener(this)
+        digitViews.forEach { it.setOnClickListener(this) }
     }
 
     private fun getDigitForId(@IdRes id: Int): Int = when (id) {
@@ -132,81 +137,81 @@ class TimerSetupDialog : BottomSheetDialogFragment(), View.OnClickListener,
     }
 
     private fun updateTime() {
-        val seconds = mInput[1] * 10 + mInput[0]
-        val minutes = mInput[3] * 10 + mInput[2]
-        val hours = mInput[5] * 10 + mInput[4]
+        val seconds = input[1] * 10 + input[0]
+        val minutes = input[3] * 10 + input[2]
+        val hours = input[5] * 10 + input[4]
 
-        mTimeView.text = String.format(mTimeTemplate, hours, minutes, seconds)
+        timeView.text = String.format(TIME_TEMPLATE, hours, minutes, seconds)
     }
 
     private fun append(digit: Int) {
         require(!(digit < 0 || digit > 9)) { "Invalid digit: $digit" }
 
         // Pressing "0" as the first digit does nothing.
-        if (mInputPointer == -1 && digit == 0) {
+        if (inputPointer == -1 && digit == 0) {
             return
         }
 
         // No space for more digits, so ignore input.
-        if (mInputPointer == mInput.size - 1) {
+        if (inputPointer == input.size - 1) {
             return
         }
 
         // Append the new digit.
-        System.arraycopy(mInput, 0, mInput, 1, mInputPointer + 1)
-        mInput[0] = digit
-        mInputPointer++
+        System.arraycopy(input, 0, input, 1, inputPointer + 1)
+        input[0] = digit
+        inputPointer++
         updateTime()
 
         // Update the delete when we have valid input.
-        if (mInputPointer == 0) {
+        if (inputPointer == 0) {
             updateDelete()
         }
     }
 
     private fun delete() {
         // Nothing exists to delete so return.
-        if (mInputPointer < 0) {
+        if (inputPointer < 0) {
             return
         }
 
-        System.arraycopy(mInput, 1, mInput, 0, mInputPointer)
-        mInput[mInputPointer] = 0
-        mInputPointer--
+        System.arraycopy(input, 1, input, 0, inputPointer)
+        input[inputPointer] = 0
+        inputPointer--
         updateTime()
 
         // Update the delete when we no longer have valid input.
-        if (mInputPointer == -1) {
+        if (inputPointer == -1) {
             updateDelete()
         }
     }
 
     private fun updateDelete() {
         val enabled = hasValidInput()
-        mDeleteView.isEnabled = enabled
+        deleteButton.isEnabled = enabled
     }
 
     private fun reset() {
-        if (mInputPointer != -1) {
-            mInput.fill(0)
-            mInputPointer = -1
+        if (inputPointer != -1) {
+            input.fill(0)
+            inputPointer = -1
             updateTime()
             updateDelete()
         }
     }
 
     private fun hasValidInput(): Boolean {
-        return mInputPointer != -1
+        return inputPointer != -1
     }
 
     private fun sendResult() {
         val listener = targetFragment as? TimerSetupDialogListener
-        listener?.onTimerSetupResult(timeInSeconds)
+        listener?.onTimerSetupResult(timeInMillis)
         dismiss()
     }
 
     interface TimerSetupDialogListener {
-        fun onTimerSetupResult(timeInSecond: Int)
+        fun onTimerSetupResult(timeInMillis: Long)
     }
 
     companion object {

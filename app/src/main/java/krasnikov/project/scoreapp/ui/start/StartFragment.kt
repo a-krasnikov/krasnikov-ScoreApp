@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
@@ -11,7 +12,7 @@ import krasnikov.project.scoreapp.R
 import krasnikov.project.scoreapp.databinding.FragmentStartBinding
 import krasnikov.project.scoreapp.utils.Navigation
 
-class StartFragment : Fragment(R.layout.fragment_start) {
+class StartFragment : Fragment() {
 
     private lateinit var binding: FragmentStartBinding
 
@@ -34,16 +35,23 @@ class StartFragment : Fragment(R.layout.fragment_start) {
     private fun setupButtonListeners() {
         binding.btnStart.setOnClickListener {
             if (isValidInputName(binding.etTeam1) && isValidInputName(binding.etTeam2)) {
-                Navigation.navigateToGameFragment(
-                    parentFragmentManager,
-                    binding.etTeam1.text.toString(),
-                    binding.etTeam2.text.toString()
-                )
+                val teamOne = binding.etTeam1.text.toString()
+                val teamTwo = binding.etTeam2.text.toString()
+
+                if (teamOne == teamTwo) {
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.error_input_team_name_equals),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    Navigation.navigateToGameFragment(parentFragmentManager, teamOne, teamTwo)
+                }
             }
         }
 
-        binding.btnWinners.setOnClickListener {
-            Navigation.navigateToTeamListFragment(parentFragmentManager)
+        binding.btnStandings.setOnClickListener {
+            Navigation.navigateToStandingsFragment(parentFragmentManager)
         }
 
         binding.btnExit.setOnClickListener {
@@ -66,6 +74,7 @@ class StartFragment : Fragment(R.layout.fragment_start) {
     }
 
     private fun setupTextInputValidation() {
+        // show an error if the entered text is invalid
         val etLoseFocusListener = View.OnFocusChangeListener { view, hasFocus ->
             if (!hasFocus) {
                 isValidInputName(view as TextInputEditText)

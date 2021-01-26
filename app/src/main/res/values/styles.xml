@@ -1,7 +1,132 @@
 <resources>
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorOnPrimary">@color/black</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <!-- Customize your theme here. -->
 
-    <style name="Widget.Theme.ScoreApp.ButtonBar.Fullscreen" parent="">
-        <item name="android:background">@color/black_overlay</item>
-        <item name="android:buttonBarStyle">?android:attr/buttonBarStyle</item>
+        <!--  CardView Style -->
+        <item name="materialCardViewStyle">@style/Widget.App.CardView</item>
+        <item name="cardViewStyle">@style/Widget.App.CardView</item>
+
+        <!--  BottomSheet Style -->
+        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
+
+        <!--  TextView Style -->
+        <item name="android:textViewStyle">@style/Widget.App.TextView.Base</item>
+
+        <!--  Button Style -->
+        <item name="materialButtonStyle">@style/Widget.App.Button</item>
+        <item name="buttonStyle">@style/Widget.App.Button</item>
     </style>
+
+    <!--  TextInputEditText Style -->
+
+    <style name="Widget.App.TextInputEditText" parent="">
+        <item name="android:maxLength">10</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:inputType">text</item>
+    </style>
+
+    <!--  TextView Style -->
+
+    <style name="Widget.App.TextView.Base" parent="Widget.MaterialComponents.TextView">
+        <item name="android:paddingStart">@dimen/text_view_padding</item>
+        <item name="android:paddingEnd">@dimen/text_view_padding</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
+    <style name="Widget.App.TextView.Scoreboard.Timer" parent="Widget.App.TextView.Base">
+        <item name="android:layout_height">@dimen/timer_height</item>
+        <item name="android:gravity">center</item>
+        <item name="android:clickable">true</item>
+        <item name="android:textColor">@color/timer_text</item>
+        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Headline2
+        </item>
+    </style>
+
+    <style name="Widget.App.TextView.Scoreboard.TeamName" parent="Widget.App.TextView.Base">
+        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Headline5
+        </item>
+        <item name="android:textColor">@color/team_text</item>
+    </style>
+
+    <style name="Widget.App.TextView.Scoreboard.Score" parent="Widget.App.TextView.Base">
+        <item name="android:layout_height">@dimen/score_height</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/team_text</item>
+        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Headline4
+        </item>
+    </style>
+
+    <style name="Widget.App.TextView.TimerSetupInput" parent="Widget.App.TextView.Base">
+        <item name="android:layout_height">@dimen/input_timer_height</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/text_border</item>
+        <item name="android:textColor">@color/timer_text</item>
+        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Headline4
+        </item>
+    </style>
+
+    <style name="Widget.App.TextView.RecyclerViewItemTeam" parent="Widget.App.TextView.Base">
+        <item name="android:gravity">left|center</item>
+        <item name="android:drawablePadding">@dimen/spacing_small</item>
+        <item name="android:drawableLeft">@drawable/ic_ball</item>
+        <item name="android:drawableTint">@color/secondary</item>
+        <item name="android:textColor">@color/team_text</item>
+        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Headline6
+        </item>
+    </style>
+
+    <style name="Widget.App.TextView.Standings.Title" parent="Widget.App.TextView.Base">
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/primary</item>
+        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Headline4
+        </item>
+    </style>
+
+    <!--  Button Style -->
+
+    <style name="Widget.App.Button" parent="Widget.MaterialComponents.Button">
+        <item name="cornerRadius">@dimen/button_corner_radius</item>
+    </style>
+
+    <!--  CardView Style -->
+
+    <style name="Widget.App.CardView" parent="Widget.MaterialComponents.CardView">
+        <item name="contentPadding">@dimen/card_padding</item>
+        <item name="cardCornerRadius">@dimen/card_corner_radius</item>
+    </style>
+
+    <!--  BottomSheet Style -->
+
+    <style name="ThemeOverlay.App.BottomSheetDialog" parent="@style/ThemeOverlay.MaterialComponents.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Widget.App.BottomSheet</item>
+        <item name="materialButtonStyle">@style/Widget.App.Button</item>
+        <item name="buttonStyle">@style/Widget.App.Button</item>
+    </style>
+
+    <style name="Widget.App.BottomSheet" parent="Widget.MaterialComponents.BottomSheet">
+        <item name="shapeAppearanceOverlay">@style/Widget.MyApp.CardShape</item>
+    </style>
+
+    <style name="Widget.MyApp.CardShape" parent="ShapeAppearance.MaterialComponents.LargeComponent">
+        <item name="cornerFamilyTopLeft">rounded</item>
+        <item name="cornerFamilyTopRight">rounded</item>
+        <item name="cornerSizeTopLeft">@dimen/card_corner_radius</item>
+        <item name="cornerSizeTopRight">@dimen/card_corner_radius</item>
+    </style>
+
+    <!--  Divider Style -->
+
+    <style name="Divider">
+        <item name="android:layout_height">@dimen/divider_height</item>
+        <item name="android:background">@color/secondary</item>
+        <item name="android:alpha">0.5</item>
+    </style>
+
 </resources>

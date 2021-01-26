@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/list_item_height"
+    android:layout_margin="@dimen/list_item_spacing"
+    tools:viewBindingIgnore="true">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvTeam"
+        style="@style/Widget.App.TextView.RecyclerViewItemTeam"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:text="Team" />
+
+    <View
+        style="@style/Divider"
+        android:layout_width="match_parent"
+        android:layout_gravity="bottom" />
+</FrameLayout>
+

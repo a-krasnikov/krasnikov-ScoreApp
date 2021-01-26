@@ -5,39 +5,48 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.commit
-import androidx.fragment.app.replace
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import krasnikov.project.scoreapp.App
 import krasnikov.project.scoreapp.R
 import krasnikov.project.scoreapp.databinding.FragmentGameBinding
 import krasnikov.project.scoreapp.model.GameViewModel
+import krasnikov.project.scoreapp.model.StandingsViewModel
 import krasnikov.project.scoreapp.model.Team
 import krasnikov.project.scoreapp.model.Timer
 import krasnikov.project.scoreapp.ui.dialogs.TimerSetupDialog
-import krasnikov.project.scoreapp.ui.winner.WinnerFragment
 import krasnikov.project.scoreapp.utils.Navigation.navigateToWinnerFragment
 import krasnikov.project.scoreapp.utils.NotificationUtils
 import krasnikov.project.scoreapp.utils.TimerStringFormatter
 
-class GameFragment : Fragment(R.layout.fragment_game), TimerSetupDialog.TimerSetupDialogListener {
+class GameFragment : Fragment(), TimerSetupDialog.TimerSetupDialogListener {
 
     private lateinit var binding: FragmentGameBinding
 
-    private val game: GameViewModel by viewModels {
+    private val standings: StandingsViewModel by activityViewModels()
+
+    private val game: GameViewModel by viewModels() {
         GameViewModel.GameViewModelFactory(
-            Team(requireArguments().getString(ARG_TEAM1, "")),
-            Team(requireArguments().getString(ARG_TEAM2, "")),
-            Timer(10)
+            Team(requireArguments().getString(ARG_TEAM_ONE, "")),
+            Team(requireArguments().getString(ARG_TEAM_TWO, "")),
+            Timer()
         )
     }
 
     override fun onResume() {
         super.onResume()
+        updateUI()
+
         // Hide notification while GameFragment is active
         NotificationUtils.hideNotification(requireContext(), game)
+
+        if (game.isFinished) {
+            finishGame()
+        }
+
+        // observe the game events
         setupGameCallback()
     }
 
@@ -53,9 +62,9 @@ class GameFragment : Fragment(R.layout.fragment_game), TimerSetupDialog.TimerSet
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupText()
+        setupBackPressedDispatcher()
+        setupTeamsName()
         setupListeners()
-        updateTimerUI(game.timer.secondsRemaining)
     }
 
     override fun onPause() {
@@ -67,33 +76,35 @@ class GameFragment : Fragment(R.layout.fragment_game), TimerSetupDialog.TimerSet
         }
     }
 
-    override fun onTimerSetupResult(timeInSecond: Int) {
-        updateTimerUI(timeInSecond)
+    // get result from TimerSetupDialog
+    override fun onTimerSetupResult(timeInMillis: Long) {
+        updateTimerUI(timeInMillis)
+        game.timer.lengthInMillis = timeInMillis
     }
 
-    private fun setupText() {
+    private fun setupTeamsName() {
         with(binding.scoreboard) {
-            tvNameTeam1.text = game.team1.name
-            tvNameTeam2.text = game.team2.name
+            tvNameTeam1.text = game.teamOne.name
+            tvNameTeam2.text = game.teamTwo.name
         }
 
         with(binding) {
-            btnScoreTeam1.text = getString(R.string.btn_score_team, game.team1)
-            btnScoreTeam2.text = getString(R.string.btn_score_team, game.team2)
+            btnScoreTeam1.text = getString(R.string.btn_score_team, game.teamOne.name)
+            btnScoreTeam2.text = getString(R.string.btn_score_team, game.teamTwo.name)
         }
     }
 
     private fun setupListeners() {
         binding.btnScoreTeam1.setOnClickListener {
             if (game.isRunning)
-                game.incScoreTeam1()
+                binding.scoreboard.tsScoreTeam1.setText(game.incScoreTeamOne().toString())
             else
                 showMsgGameNotRunning()
         }
 
         binding.btnScoreTeam2.setOnClickListener {
             if (game.isRunning)
-                game.incScoreTeam2()
+                binding.scoreboard.tsScoreTeam2.setText(game.incScoreTeamTwo().toString())
             else
                 showMsgGameNotRunning()
         }
@@ -103,9 +114,14 @@ class GameFragment : Fragment(R.layout.fragment_game), TimerSetupDialog.TimerSet
         }
 
         binding.scoreboard.tvTimer.setOnClickListener {
-            TimerSetupDialog().apply {
-                setTargetFragment(this, 0)
-            }.show(parentFragmentManager, "TimerSetupDialog")
+            if (!game.isRunning) {
+                TimerSetupDialog.newInstance().apply {
+                    setTargetFragment(this@GameFragment, 0)
+                }.show(parentFragmentManager, "TimerSetupDialog")
+
+            } else {
+                showMsgGameRunning()
+            }
         }
 
         binding.fabPlay.setOnClickListener {
@@ -118,48 +134,49 @@ class GameFragment : Fragment(R.layout.fragment_game), TimerSetupDialog.TimerSet
 
         binding.fabStop.setOnClickListener {
             game.stop()
+            updateUI()
+        }
+    }
+
+    private fun setupBackPressedDispatcher() {
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            if (game.isRunning) {
+                game.stop()
+            }
+            parentFragmentManager.popBackStack()
         }
     }
 
     private fun setupGameCallback() {
         with(game) {
-            timer.timeUpdateCallback = { secondsRemaining ->
-                updateTimerUI(secondsRemaining)
-            }
-
-            onScoreChangeCallback = { scoreTeam1, scoreTeam2 ->
-                binding.scoreboard.tvScoreTeam1.text = scoreTeam1.toString()
-                binding.scoreboard.tvScoreTeam2.text = scoreTeam2.toString()
+            timer.onTickCallback = { millisRemaining ->
+                updateTimerUI(millisRemaining)
             }
 
             onGameFinishCallback = {
-                val app = requireActivity().application as App
-                app.tournamentTable.addTeam(it.first)
-                app.tournamentTable.addTeam(it.second)
-                val winner = when {
-                    it.first.scores > it.second.scores -> it.first.name
-                    it.first.scores < it.second.scores -> it.second.name
-                    else -> getString(R.string.text_draw)
-                }
-                navigateToWinnerFragment(parentFragmentManager, winner)
+                finishGame()
             }
         }
     }
 
     private fun clearGameCallback() {
         with(game) {
-            timer.timeUpdateCallback = null
-            onScoreChangeCallback = null
+            timer.onTickCallback = null
             onGameFinishCallback = null
         }
     }
 
-    private fun updateTimerUI(secondsRemaining: Int) {
-        binding.scoreboard.tvTimer.text = TimerStringFormatter.formatTimeRemaining(secondsRemaining)
+    private fun updateUI() {
+        updateTimerUI(game.timer.millisRemaining)
+        binding.scoreboard.tsScoreTeam1.setCurrentText(game.teamOne.scores.toString())
+        binding.scoreboard.tsScoreTeam2.setCurrentText(game.teamTwo.scores.toString())
+    }
+
+    private fun updateTimerUI(millisRemaining: Long) {
+        binding.scoreboard.tvTimer.text = TimerStringFormatter.formatTime(millisRemaining)
     }
 
     private fun showCloseGameConfirmationDialog() {
-        //TODO lifecycle
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(getString(R.string.dialog_title_close_game))
             .setMessage(getString(R.string.msg_close_game))
@@ -174,7 +191,25 @@ class GameFragment : Fragment(R.layout.fragment_game), TimerSetupDialog.TimerSet
     }
 
     private fun showMsgGameNotRunning() {
-        Toast.makeText(requireContext(), R.string.msg_game_not_running, Toast.LENGTH_SHORT).show()
+        Toast.makeText(
+            requireContext(),
+            getString(R.string.msg_game_not_running),
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
+    private fun showMsgGameRunning() {
+        Toast.makeText(
+            requireContext(),
+            getString(R.string.msg_game_running),
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
+    private fun finishGame() {
+        standings.addTeam(game.teamOne)
+        standings.addTeam(game.teamTwo)
+        navigateToWinnerFragment(parentFragmentManager, game.teamOne, game.teamTwo)
     }
 
     private fun closeGame() {
@@ -185,15 +220,15 @@ class GameFragment : Fragment(R.layout.fragment_game), TimerSetupDialog.TimerSet
     }
 
     companion object {
-        private const val ARG_TEAM1 = "team1"
-        private const val ARG_TEAM2 = "team2"
+        private const val ARG_TEAM_ONE = "teamOne"
+        private const val ARG_TEAM_TWO = "teamTwo"
 
         @JvmStatic
         fun newInstance(team1: String, team2: String) =
             GameFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_TEAM1, team1)
-                    putString(ARG_TEAM2, team2)
+                    putString(ARG_TEAM_ONE, team1)
+                    putString(ARG_TEAM_TWO, team2)
                 }
             }
     }

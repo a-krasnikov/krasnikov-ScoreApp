@@ -3,17 +3,24 @@ package krasnikov.project.scoreapp.model
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
-import kotlin.math.max
+import android.text.format.DateUtils
+import kotlin.properties.Delegates
 
-class Timer(private val lengthInSeconds: Int) {
+class Timer(lengthInMillis: Long = 30000L) {
 
-    private val handler: Handler = Handler(Looper.getMainLooper())
-
-    var secondsRemaining = lengthInSeconds
-        private set
+    private val handler: Handler by lazy { Handler(Looper.getMainLooper()) }
 
     // Scheduled to update the timers
     private val timeUpdateRunnable: Runnable = TimeUpdateRunnable()
+
+    var lengthInMillis: Long by Delegates.observable(lengthInMillis) { _, _, newValue ->
+        millisRemaining = newValue
+    }
+
+    private var nextTickTime = 0L
+
+    var millisRemaining = lengthInMillis
+        private set
 
     var state = State.STOPPED
         private set
@@ -21,13 +28,17 @@ class Timer(private val lengthInSeconds: Int) {
     val isRunning: Boolean
         get() = state == State.RUNNING
 
-    var timeUpdateCallback: ((secondsRemaining: Int) -> Unit)? = null
-    var finishCallback: (() -> Unit)? = null
+    val isFinished: Boolean
+        get() = state == State.FINISHED
+
+    var onTickCallback: ((millisRemaining: Long) -> Unit)? = null
+    var onFinishCallback: (() -> Unit)? = null
 
     fun start() {
         if (state != State.RUNNING && state != State.FINISHED) {
             state = State.RUNNING
-            handler.post(timeUpdateRunnable)
+            nextTickTime = SystemClock.uptimeMillis() + DateUtils.SECOND_IN_MILLIS
+            handler.postAtTime(timeUpdateRunnable, nextTickTime)
         }
     }
 
@@ -42,38 +53,33 @@ class Timer(private val lengthInSeconds: Int) {
         if (state != State.STOPPED) {
             state = State.STOPPED
             handler.removeCallbacks(timeUpdateRunnable)
-            secondsRemaining = lengthInSeconds
-            timeUpdateCallback?.invoke(secondsRemaining)
+            millisRemaining = lengthInMillis
+            onTickCallback?.invoke(millisRemaining)
         }
     }
 
     private fun finish() {
         state = State.FINISHED
-        finishCallback?.invoke()
+        handler.removeCallbacks(timeUpdateRunnable)
+        onFinishCallback?.invoke()
     }
 
     private fun updateTime(): State {
-        secondsRemaining--
-        timeUpdateCallback?.invoke(secondsRemaining)
+        millisRemaining -= DateUtils.SECOND_IN_MILLIS
+        onTickCallback?.invoke(millisRemaining)
 
-        if (secondsRemaining == 0)
+        if (millisRemaining <= 0) {
             finish()
-
+        }
         return state
     }
 
     private inner class TimeUpdateRunnable : Runnable {
         override fun run() {
-            val startTime = SystemClock.elapsedRealtime()
-            // If no timers require continuous updates, avoid scheduling the next update.
-            if (updateTime() != State.RUNNING) {
-                return
+            if (updateTime() == State.RUNNING) {
+                nextTickTime += DateUtils.SECOND_IN_MILLIS
+                handler.postAtTime(this, nextTickTime)
             }
-            val endTime = SystemClock.elapsedRealtime()
-
-            // Try to maintain a consistent period of time between redraws.
-            val delay = max(0, startTime + 20 - endTime)
-            handler.postDelayed(this, 1000)
         }
     }
 

@@ -3,9 +3,14 @@
 
     <string name="title_team1">Team 1</string>
     <string name="title_team2">Team 2</string>
-    <string name="title_winner_list">List of winners</string>
+    <string name="title_standings">Standings</string>
     <string name="title_notification_game">Game is running</string>
+    <string name="title_notification_game_finished">Game is finished</string>
+    <string name="text_notification_game_result">%s %d:%d %s</string>
     <string name="text_draw">Draw</string>
+    <string name="text_item_team">%s - scores: %d</string>
+    <string name="text_share_result">%s %d:%d %s</string>
+    <string name="text_result">%d:%d</string>
 
     <!-- Dialogs-->
     <string name="dialog_title_exit">Exit</string>
@@ -17,19 +22,25 @@
 
     <!-- Buttons title -->
     <string name="btn_start">Start</string>
-    <string name="btn_winners">Winners</string>
+    <string name="btn_standings">Standings</string>
     <string name="btn_exit">Exit</string>
     <string name="btn_score_team">Score %s</string>
     <string name="btn_close_game">Close game</string>
     <string name="btn_notification_play">Play game</string>
     <string name="btn_ok">Ok</string>
     <string name="btn_cancel">Cancel</string>
+    <string name="btn_new_game">New game</string>
+    <string name="btn_share">Share result</string>
+    <string name="btn_sort_asc">Sort by asc</string>
+    <string name="btn_sort_desc">Sort by desc</string>
 
     <!-- Error msg-->
     <string name="error_input_team_name">The name must be at least 3 characters long.</string>
+    <string name="error_input_team_name_equals">Names must be different.</string>
 
     <string name="msg_game_not_running">Game is not running. Please start timer.</string>
-
+    <string name="msg_game_running">Game is running. Please stop timer.</string>
+    <string name="msg_invalid_time">Please enter a valid time.</string>
 
     <!-- Strings for notification channel. -->
     <string name="timer_channel">Timer</string>
